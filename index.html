@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RGB Match - Master the Colors</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="particleCanvas"></canvas>
+
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <main id="gameContainer" class="glass-panel">
+        
+        <div id="utilityBar">
+            <button id="darkModeToggle" class="icon-btn" title="Toggle Theme" aria-label="Toggle Theme">🌓</button>
+            <button id="fullscreenToggle" class="icon-btn" title="Toggle Fullscreen" aria-label="Toggle Fullscreen">📺</button>
+            <button id="pauseToggle" class="icon-btn hidden" title="Pause Game" aria-label="Pause Game">⏸️</button>
+        </div>
+
+        <section id="startScreen" class="screen active">
+            <h1 class="game-title">RGB Match</h1>
+            <p class="game-subtitle">Train your brain to see color like a machine.</p>
+            
+            <div class="menu-card">
+                <h3>Select Difficulty</h3>
+                <div class="difficulty-selector">
+                    <button class="diff-btn active" data-diff="easy">
+                        <span class="diff-title">Easy</span>
+                        <span class="diff-desc">Bright vibrant distinct colors</span>
+                    </button>
+                    <button class="diff-btn" data-diff="medium">
+                        <span class="diff-title">Medium</span>
+                        <span class="diff-desc">Completely random colors</span>
+                    </button>
+                    <button class="diff-btn" data-diff="hard">
+                        <span class="diff-title">Hard</span>
+                        <span class="diff-desc">5s peek memory mode</span>
+                    </button>
+                </div>
+
+                <div class="mode-selector">
+                    <button id="classicModeBtn" class="main-btn primary">Play Classic</button>
+                    <button id="dailyChallengeBtn" class="main-btn secondary">Daily Challenge</button>
+                </div>
+            </div>
+
+            <div class="stats-dashboard grid-3">
+                <div class="stat-box">
+                    <span class="stat-label">Best Score</span>
+                    <span id="localBestScore" class="stat-value">0</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Max Combo</span>
+                    <span id="localMaxCombo" class="stat-value">0</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Played</span>
+                    <span id="localGamesPlayed" class="stat-value">0</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="gameplayScreen" class="screen">
+            <div class="hud-bar">
+                <div class="hud-item" title="Current Round">
+                    <span class="hud-label">ROUND</span>
+                    <span id="roundDisplay" class="hud-value">1</span>
+                </div>
+                <div class="hud-item" title="Current Score">
+                    <span class="hud-label">SCORE</span>
+                    <span id="scoreDisplay" class="hud-value">0</span>
+                </div>
+                <div class="hud-item" title="Active Streak Combo">
+                    <span class="hud-label">COMBO</span>
+                    <span id="comboDisplay" class="hud-value">x1</span>
+                </div>
+                <div id="timerContainer" class="hud-item" title="Time Remaining">
+                    <span class="hud-label">TIME</span>
+                    <span id="timerDisplay" class="hud-value">20</span>
+                </div>
+                <div class="hud-item" title="Remaining Lives">
+                    <span class="hud-label">LIVES</span>
+                    <div id="livesContainer" class="lives-row">
+                        <span class="heart active">❤️</span>
+                        <span class="heart active">❤️</span>
+                        <span class="heart active">❤️</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="color-preview-container grid-2">
+                <div class="color-card">
+                    <h4>Target Color</h4>
+                    <div id="targetColorBox" class="color-box">
+                        <span id="memoryModeMaskText" class="hidden">Memorize!</span>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <h4>Your Color</h4>
+                    <div id="playerColorBox" class="color-box"></div>
+                </div>
+            </div>
+
+            <div id="hintTicker" class="hint-ticker">Adjust sliders to find the matching recipe!</div>
+
+            <div class="sliders-control-group">
+                <div class="slider-row red-channel">
+                    <div class="slider-meta">
+                        <label for="sliderR">Red</label>
+                        <span id="valR" class="channel-value">128</span>
+                    </div>
+                    <input type="range" id="sliderR" min="0" max="255" value="128" step="1">
+                </div>
+
+                <div class="slider-row green-channel">
+                    <div class="slider-meta">
+                        <label for="sliderG">Green</label>
+                        <span id="valG" class="channel-value">128</span>
+                    </div>
+                    <input type="range" id="sliderG" min="0" max="255" value="128" step="1">
+                </div>
+
+                <div class="slider-row blue-channel">
+                    <div class="slider-meta">
+                        <label for="sliderB">Blue</label>
+                        <span id="valB" class="channel-value">128</span>
+                    </div>
+                    <input type="range" id="sliderB" min="0" max="255" value="128" step="1">
+                </div>
+            </div>
+
+            <div class="action-row">
+                <button id="submitBtn" class="main-btn primary">Submit Match</button>
+                <button id="nextBtn" class="main-btn secondary hidden">Next Round →</button>
+            </div>
+        </section>
+
+        <section id="gameOverScreen" class="screen">
+            <h1 class="game-title special-text">Game Over</h1>
+            <p id="gameOverMessage" class="game-subtitle">Spectacular attempt! Can you beat your record?</p>
+
+            <div class="results-card glass-panel-nested">
+                <h3>Match Summary</h3>
+                <div class="summary-list">
+                    <div class="summary-item">
+                        <span>Final Score</span>
+                        <strong id="summaryFinalScore">0</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>Rounds Cleared</span>
+                        <strong id="summaryRounds">0</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>Peak Combo Multiplier</span>
+                        <strong id="summaryMaxCombo">x1</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>All-Time High Score</span>
+                        <strong id="summaryBestScore">0</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-row vertical-stack" style="margin-top: 25px;">
+                <button id="rematchBtn" class="main-btn primary">Play Again</button>
+                <button id="homeBtn" class="main-btn secondary">Return to Main Menu</button>
+            </div>
+        </section>
+    </main>
+
+    <div id="pauseOverlay" class="overlay hidden">
+        <div class="overlay-card glass-panel">
+            <h2>Game Paused</h2>
+            <p>Take a breath. RGB colors remain logical.</p>
+            <button id="resumeBtn" class="main-btn primary" style="margin-top: 20px; width: 100%;">Resume Session</button>
+        </div>
+    </div>
+
+    <div id="roundFeedbackOverlay" class="overlay hidden">
+        <div class="overlay-card glass-panel animated-pop">
+            <h2 id="feedbackGrade">Excellent</h2>
+            <div id="feedbackStars" class="stars-display">⭐⭐⭐</div>
+            <div class="accuracy-badge">
+                <span id="feedbackAccuracy">98%</span> Accuracy
+            </div>
+            <p id="feedbackPointsAwarded">+90 Points</p>
+            
+            <hr class="divider">
+            
+            <div class="fact-container">
+                <span class="fact-label">Did you know?</span>
+                <p id="funFactBox" class="fact-text">RGB is an additive color model used for digital monitors.</p>
+            </div>
+
+            <button id="feedbackCloseBtn" class="main-btn primary" style="width: 100%;">Continue</button>
+        </div>
+    </div>
+
+    <div id="floatingNotificationLayer"></div>
+
+    <canvas id="confettiCanvas"></canvas>
+    
+    <script src="script.js"></script>
+</body>
+</html>
